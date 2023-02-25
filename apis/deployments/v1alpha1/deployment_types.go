@@ -28,8 +28,13 @@ type DeploymentSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of Deployment. Edit deployment_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Replicas      int32  `json:"replicas,omitempty"`
+	Image         string `json:"image,omitempty"`
+	ContainerPort int32  `json:"port,omitempty"`
+	CpuRequest    string `json:"cpu_req,omitempty"`
+	CpuLimit      string `json:"cpu_lim,omitempty"`
+	MemoryRequest string `json:"mem_req,omitempty"`
+	MemoryLimit   string `json:"mem_lim,omitempty"`
 }
 
 // DeploymentStatus defines the observed state of Deployment

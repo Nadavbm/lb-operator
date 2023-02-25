@@ -27,9 +27,14 @@ import (
 type ServiceSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	Ports []ServicePort `json:"ports,omitempty"`
+}
 
-	// Foo is an example field of Service. Edit service_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+type ServicePort struct {
+	Name       string `json:"name,omitempty"`
+	Protocol   string `json:"protocol,omitempty"`
+	Port       int32  `json:"port,omitempty"`
+	TargetPort int32  `json:"targetPort,omitempty"`
 }
 
 // ServiceStatus defines the observed state of Service
