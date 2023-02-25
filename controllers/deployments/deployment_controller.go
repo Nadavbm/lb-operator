@@ -19,12 +19,12 @@ package deployments
 import (
 	"context"
 
+	deploymentsv1alpha1 "example.com/lb/apis/deployments/v1alpha1"
+	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-
-	deploymentsv1alpha1 "example.com/lb/apis/deployments/v1alpha1"
 )
 
 // DeploymentReconciler reconciles a Deployment object
@@ -58,5 +58,6 @@ func (r *DeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 func (r *DeploymentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&deploymentsv1alpha1.Deployment{}).
+		Owns(&appsv1.Deployment{}).
 		Complete(r)
 }
