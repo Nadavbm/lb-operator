@@ -28,7 +28,10 @@ type ConfigMapSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	Data map[string]string `json:"data,omitempty"`
+	LoadBalancerType string  `json:"loadBalancerType,omitEmpty"`
+	EnableDashboard  bool    `json:"enableDashboard,omitempty"`
+	DNSDomain        string  `json:"dnsDomain,omitempty"`
+	Ports            []int32 `json:"ports,omitempty"`
 }
 
 // ConfigMapStatus defines the observed state of ConfigMap

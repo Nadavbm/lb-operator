@@ -35,9 +35,9 @@ spec:
           spec:
             description: ServiceSpec defines the desired state of Service
             properties:
+              loadBalancerIP:
+                type: string
               ports:
-                description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                  Important: Run "make" to regenerate code after modifying this file'
                 items:
                   properties:
                     name:

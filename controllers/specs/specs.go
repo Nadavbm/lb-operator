@@ -2,6 +2,7 @@ package specs
 
 import (
 	"math/rand"
+	"strings"
 
 	configmaps "example.com/lb/apis/configmaps/v1alpha1"
 	deployments "example.com/lb/apis/deployments/v1alpha1"
@@ -20,6 +21,17 @@ const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456
 func BuildDeployment(ns string, deploy *deployments.Deployment) *appsv1.Deployment {
 	name := "lb-deploy"
 	replicas := int32(numOfReplicas)
+	var configEnvVars []v1.EnvVar
+	if strings.Contains(deploy.Spec.Image, "traefik") {
+		configEnvVars = append(configEnvVars, getEnvVarConfigMapSource("static-yaml", "/config/static.yaml"))
+		configEnvVars = append(configEnvVars, getEnvVarConfigMapSource("dynamic-yaml", "/config/dynamic.yaml"))
+	}
+
+	if strings.Contains(deploy.Spec.Image, "ngnix") {
+		configEnvVars = append(configEnvVars, getEnvVarConfigMapSource("ngnix-conf", "/etc/ngnix/ngnix.conf"))
+		configEnvVars = append(configEnvVars, getEnvVarConfigMapSource("virtualhost-conf", "/etc/nginx/virtualhost/virtualhost.conf"))
+	}
+
 	return &appsv1.Deployment{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Deployment",
@@ -36,9 +48,8 @@ func BuildDeployment(ns string, deploy *deployments.Deployment) *appsv1.Deployme
 				Spec: v1.PodSpec{
 					Containers: []v1.Container{
 						{
-							Name: "lb",
-							// TODO allow choosing image
-							Image: "traefik",
+							Name:  "lb",
+							Image: deploy.Spec.Image,
 							Ports: []v1.ContainerPort{
 								{
 									Protocol:      v1.ProtocolTCP,
@@ -58,6 +69,8 @@ func BuildDeployment(ns string, deploy *deployments.Deployment) *appsv1.Deployme
 							Env: []v1.EnvVar{
 								// TODO allow setting secrets and relevant secrets
 								getEnvVarSecretSource("CERT", "cert", "key.crt"),
+								configEnvVars[0],
+								configEnvVars[1],
 							},
 						},
 					},
@@ -94,10 +107,12 @@ func BuildService(ns string, service *services.Service) *v1.Service {
 		},
 		ObjectMeta: buildMetadata(name, ns, service.APIVersion, service.Kind, service.UID),
 		Spec: v1.ServiceSpec{
-			Type:       v1.ServiceTypeLoadBalancer,
-			Ports:      buildServicePorts(service),
-			Selector:   buildLabels(name),
-			IPFamilies: []v1.IPFamily{},
+			Type:                  v1.ServiceTypeLoadBalancer,
+			LoadBalancerIP:        service.Spec.LoadBalancerIP,
+			Ports:                 buildServicePorts(service),
+			Selector:              buildLabels(name),
+			ExternalTrafficPolicy: "Local",
+			SessionAffinity:       "None",
 		},
 	}
 }
@@ -130,6 +145,20 @@ func getEnvVarSecretSource(envName, name, secret string) v1.EnvVar {
 					Name: name,
 				},
 				Key: secret,
+			},
+		},
+	}
+}
+
+func getEnvVarConfigMapSource(configName, fileName string) v1.EnvVar {
+	return v1.EnvVar{
+		Name: configName,
+		ValueFrom: &v1.EnvVarSource{
+			ConfigMapKeyRef: &v1.ConfigMapKeySelector{
+				LocalObjectReference: v1.LocalObjectReference{
+					Name: configName,
+				},
+				Key: fileName,
 			},
 		},
 	}

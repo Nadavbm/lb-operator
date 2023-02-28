@@ -27,7 +27,9 @@ import (
 type ServiceSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	Ports []ServicePort `json:"ports,omitempty"`
+
+	LoadBalancerIP string        `json:"loadBalancerIP,omitempty"`
+	Ports          []ServicePort `json:"ports,omitempty"`
 }
 
 type ServicePort struct {

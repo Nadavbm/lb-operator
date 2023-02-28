@@ -35,10 +35,19 @@ spec:
           spec:
             description: ConfigMapSpec defines the desired state of ConfigMap
             properties:
-              data:
-                additionalProperties:
-                  type: string
-                type: object
+              dnsDomain:
+                type: string
+              enableDashboard:
+                type: boolean
+              loadBalancerType:
+                type: string
+              ports:
+                items:
+                  format: int32
+                  type: integer
+                type: array
+            required:
+            - loadBalancerType
             type: object
           status:
             description: ConfigMapStatus defines the observed state of ConfigMap
