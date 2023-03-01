@@ -15,4 +15,12 @@ kubebuilder create api --group configmaps --version v1alpha1 --kind ConfigMap
 kubebuilder create api --group deployments --version v1alpha1 --kind Deployment
 ```
 
-
+update apis and k8s manifests by running:
+```
+make generate
+make manifests
+```
+push docker image to docker hub:
+```
+make docker-build docker-push IMG="nadavbm/lb-operator:v0.0.1"
+```
